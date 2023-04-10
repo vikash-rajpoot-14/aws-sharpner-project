@@ -1,5 +1,12 @@
 const Razorpay = require("razorpay");
 const Order = require("./../models/order");
+const jwt = require("jsonwebtoken");
+
+const signToken = (id, name, ispremiumuser) => {
+  return jwt.sign({ id, name, ispremiumuser }, process.env.JWT_SECRET, {
+    expiresIn: "10h",
+  });
+};
 
 exports.purchasepremiumship = async (req, res) => {
   try {
@@ -11,6 +18,7 @@ exports.purchasepremiumship = async (req, res) => {
       if (err) {
         throw new Error(JSON.stringify(err));
       }
+      //  const token = signToken(user.id, user.name, user.ispremiumuser);
       req.user
         .createOrder({ orderid: order.id, status: "PENDING" })
         .then((order) => {
@@ -28,36 +36,35 @@ exports.purchasepremiumship = async (req, res) => {
 };
 
 exports.updatetransactionstatus = async (req, res) => {
+  const { order_id, payment_id, status } = req.body;
   try {
-    const { order_id, payment_id, status } = req.body;
-    Promise.all([
+    const values = await Promise.all([
       Order.update(
         { paymentId: payment_id, status: status },
         { where: { orderid: order_id } }
       ),
       req.user.update({ ispremiumuser: true }),
-    ])
-      .then((values) => {
-        // console.log("values", values);
-        return res.status(202).json({
-          status: status,
-          message: `TRANSACTION ${status}`,
-        });
-      })
-      .catch((err) => {
-        return res.status(202).json({
-          status: "fail",
-          message: "transaction failed",
-          error: err,
-        });
-      });
+    ]);
+    // console.log(values[1].id, values[1].name, values[1].ispremiumuser);
+    const token = signToken(
+      values[1].id,
+      values[1].name,
+      values[1].ispremiumuser
+    );
+    // console.log(token);
+    return res.status(202).json({
+      status: status,
+      message: `TRANSACTION ${status}`,
+      token,
+    });
   } catch (error) {
     Order.update(
       { paymentId: payment_id, status: "FAIL" },
       { where: { orderid: order_id } }
     );
     return res.status(500).json({
-      status: "error",
+      status: "fail",
+      message: `TRANSACTION ${status}`,
       error,
     });
   }

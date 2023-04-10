@@ -53,30 +53,41 @@ exports.deleteExpenses = async (req, res) => {
   }
 };
 
-exports.allExpenses = (req, res) => {
+exports.allExpenses = async (req, res) => {
   try {
-    User.findAll({
-      attributes: ["id", "name"],
-      include: [{ model: Expense, attributes: ["expense"] }],
-      // group: ["expenses"],
-      // order: [["expense", "DESC"]],
-    })
-      .then((result) => {
-        return res.status(200).json({
-          status: "success",
-          data: result,
-        });
-      })
-      .catch((err) => {
-        return res.status(200).json({
-          status: "fail",
-          data: err,
-        });
-      });
+    const expenses = await User.findAll({
+      attributes: [
+        "id",
+        "name",
+        [Sequelize.fn("sum", Sequelize.col("expenses.expense")), "total_Cost"],
+      ],
+      include: [
+        {
+          model: Expense,
+          attributes: [],
+        },
+      ],
+      group: ["user.id"],
+      order: [["total_Cost", "DESC"]],
+    });
+    // const expenses = await Expense.findAll({
+    //   attributes: [
+    //     "userId",
+    //     [Sequelize.fn("sum", Sequelize.col("expense")), "total_Cost"],
+    //   ],
+    //   // include: [{ model: User, attributes: ["name"] }],
+    //   group: "userId",
+    //   order: [["total_Cost", "DESC"]],
+    // });
+    // console.log("result", expenses);
+    return res.status(200).json({
+      status: "success",
+      data: expenses,
+    });
   } catch (error) {
     return res.status(200).json({
       status: "fail",
-      data: "internal server error",
+      data: error,
     });
   }
 };

@@ -2,9 +2,9 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+const signToken = (id, name, ispremiumuser) => {
+  return jwt.sign({ id, name, ispremiumuser }, process.env.JWT_SECRET, {
+    expiresIn: "10h",
   });
 };
 
@@ -19,8 +19,7 @@ exports.Signup = async (req, res) => {
         phone: req.body.phone,
         password: hash,
       });
-      // console.log(user.id);
-      const token = signToken(user.id);
+      const token = signToken(user.id, user.name, user.ispremiumuser);
       if (!user) {
         res.status(500).json({
           msg: err,
@@ -37,7 +36,7 @@ exports.Signup = async (req, res) => {
 };
 
 exports.Login = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   try {
     const user = await User.findOne({ where: { email: req.body.email } });
     // console.log(user);
@@ -57,8 +56,7 @@ exports.Login = async (req, res) => {
             .json({ status: "success", msg: "something went wrong!" });
         }
         if (result === true) {
-          console.log(req.user);
-          const token = signToken(user.id);
+          const token = signToken(user.id, user.name, user.ispremiumuser);
           return res.status(200).json({
             status: "success",
             msg: "user login successful",

@@ -22,8 +22,3 @@ async function showHandler(e) {
     error.innerHTML = e.response.data.msg;
   }
 }
-
-document.getElementById("rzp-button1").onclick = function (e) {
-  rzp1.open();
-  e.preventDefault();
-};

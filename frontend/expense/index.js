@@ -1,5 +1,4 @@
 const ul = document.getElementById("list");
-const token = localStorage.getItem("token");
 const error = document.getElementById("error");
 const leaderboard = document.getElementById("leaderboard");
 const listboard = document.getElementById("listboard");
@@ -7,8 +6,25 @@ const leaderbtn = document.getElementById("leader-btn");
 leaderboard.style.display = "none";
 listboard.style.display = "none";
 leaderbtn.style.display = "none";
-
+let token = localStorage.getItem("token");
+let decode = parseJwt(token);
 showdata();
+
+function parseJwt(token) {
+  var base64Url = token.split(".")[1];
+  var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  var jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
+
+  return JSON.parse(jsonPayload);
+}
 
 async function showHandler(e) {
   e.preventDefault();
@@ -37,16 +53,22 @@ async function showHandler(e) {
 }
 
 async function showdata() {
+  let token = localStorage.getItem("token");
+  const decode = parseJwt(token);
+  // const token2 = localStorage.getItem("token2");
+  // const decode2 = parseJwt(token2);
   const expenses = await axios.get("http://localhost:3000/expenses", {
     headers: {
       "Content-type": "application/json",
       authorization: "Bearer " + `${token}`,
     },
   });
-  localStorage.setItem("ispremium", expenses.data.ispremium);
-  if (JSON.parse(localStorage.getItem("ispremium"))) {
+  if (decode.ispremiumuser) {
     buttonChange();
   }
+  // if (decode2.ispremiumuser) {
+  //   buttonChange();
+  // }
   let listData = "";
   if (expenses.data.data.length < 1) {
     ul.innerHTML = listData;
@@ -75,7 +97,6 @@ async function deleteData(id) {
 }
 
 document.getElementById("rzp-button1").onclick = async function (e) {
-  const token = localStorage.getItem("token");
   const response = await axios.get(
     "http://localhost:3000/payment/purchasepremiumship",
     {
@@ -102,7 +123,7 @@ document.getElementById("rzp-button1").onclick = async function (e) {
       color: "#3399cc",
     },
     handler: async function (response) {
-      const data = await axios.post(
+      const updatedData = await axios.post(
         "http://localhost:3000/payment/updatetransactionstatus",
         {
           status: "SUCCESS",
@@ -116,7 +137,8 @@ document.getElementById("rzp-button1").onclick = async function (e) {
           },
         }
       );
-      // console.log("data", data);
+      // console.log("updatedData", updatedData);
+      localStorage.setItem("token", JSON.stringify(updatedData.data.token));
       alert("you are a premium user now");
       buttonChange();
     },
@@ -138,7 +160,6 @@ document.getElementById("rzp-button1").onclick = async function (e) {
         },
       }
     );
-    // console.log("res", response);
     alert(response.error.reason);
   });
   e.preventDefault();
@@ -154,10 +175,11 @@ async function buttonChange() {
   premiumButton.innerHTML = "you are a premium user now";
   premiumButton.setAttribute("disabled", "");
   leaderbtn.style.display = "block";
+  leaderboardData();
 }
 
 async function leaderboardData() {
-  const { data } = await axios.get(
+  const response = await axios.get(
     "http://localhost:3000/expenses/allExpenses",
     {
       headers: {
@@ -166,18 +188,21 @@ async function leaderboardData() {
       },
     }
   );
-  let arr = data.data;
-  for (let i = 0; i < arr.length; i++) {
-    arr[i].expenses = arr[i].expenses.reduce((a, b) => a + b.expense * 1, 0);
-  }
-  arr.sort((a, b) => b.expenses - a.expenses);
+  // console.log(response.data.data);
+  let arr = response.data.data;
+  // for (let i = 0; i < arr.length; i++) {
+  //   arr[i].expenses = arr[i].expenses.reduce((a, b) => a + b.expense * 1, 0);
+  // }
+  // arr.sort((a, b) => b.expenses - a.expenses);
   let listData = "";
   if (arr.length < 1) {
     listboard.innerHTML = listData;
   } else {
     arr.map((expense) => {
       listData += '<li class="list-item">';
-      listData += `Name :-${expense.name}   Totalexpenses :-${expense.expenses}  `;
+      listData += `Name :-${expense.name}   Totalexpenses :-${
+        expense.total_Cost * 1
+      }  `;
       listData += "</li>";
       listboard.innerHTML = listData;
     });

@@ -12,6 +12,7 @@ exports.authenticate = async (req, res, next) => {
     }
     //   console.log(JSON.parse(token));
     const decode = await jwt.verify(JSON.parse(token), process.env.JWT_SECRET);
+    // console.log("decode", decode);
     const user = await User.findByPk(decode.id);
     req.user = user;
     next();
