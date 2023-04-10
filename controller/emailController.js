@@ -1,38 +1,46 @@
-const Sib = require("sib-api-v3-sdk");
-let client = Sib.ApiClient.instance;
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-let apiKey = client.authentications["api-key"];
-apiKey.apiKey =
-  "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";
+let defaultClient = SibApiV3Sdk.ApiClient.instance;
 
-let transEmailApi = new Sib.TransactionalEmailsApi();
+let apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey = process.env.SIB_API_KEY;
+
+let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 const sender = {
   email: "vikashraj1490@gmail.com",
   name: "Vikash Rajpoot",
 };
 
-const recievers = [
-  {
-    email: "vikas14902255@gmail.com",
-  },
-];
+exports.ForgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const recievers = [
+      {
+        email: email,
+      },
+    ];
 
-transEmailApi
-  .sendTransacEmail({
-    sender,
-    to: recievers,
-    subject: "email for forget password",
-    textContent: `your opt is {{params.otp}}`,
-    params: {
-      otp: Math.floor(Math.random() * 1000000 + 1),
-    },
-  })
-  .then((data) => {
+    const data = await apiInstance.sendTransacEmail({
+      sender,
+      to: recievers,
+      subject: "email for forget password",
+      textContent: `your new  opt is {{params.otp}}`,
+      params: {
+        otp: Math.floor(Math.random() * 100000 + 1),
+      },
+    });
     console.log(
       "API called successfully. Returned data: " + JSON.stringify(data)
     );
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+    return res.status(200).json({
+      status: "success",
+      data: "message has been sent",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      data: error,
+    });
+  }
+};

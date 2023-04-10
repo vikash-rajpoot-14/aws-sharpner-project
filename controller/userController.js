@@ -82,10 +82,3 @@ exports.Login = async (req, res) => {
       .json({ status: "fail", msg: "error " + err.message });
   }
 };
-
-exports.ForgetPassword = async (req, res) => {
-  return res.status(200).json({
-    status: "success",
-    data: "forgot password",
-  });
-};
