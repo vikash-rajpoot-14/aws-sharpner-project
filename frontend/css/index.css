@@ -68,3 +68,14 @@ input[type="text"] {
 a {
   color: blue;
 }
+
+.lastchild p {
+  margin: 6px 2px;
+}
+#submit {
+  background-color: rgb(81, 81, 233);
+  padding: 6px;
+  font-size: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}

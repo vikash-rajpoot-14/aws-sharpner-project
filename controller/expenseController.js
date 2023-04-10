@@ -1,6 +1,5 @@
 const Expense = require("./../models/expense");
 const User = require("./../models/user");
-const Sequelize = require("sequelize");
 const sequelize = require("./../util/database");
 
 exports.PostExpense = async (req, res) => {
