@@ -2,7 +2,7 @@ const Expense = require("./../models/expense");
 const User = require("./../models/user");
 const Sequelize = require("sequelize");
 
-exports.PostExpense = async (req, res) => {
+exports.PostExpense = (req, res) => {
   if (
     req.body.expense.length < 1 ||
     req.body.expense === undefined ||
@@ -16,17 +16,36 @@ exports.PostExpense = async (req, res) => {
       msg: "Enter all fields",
     });
   }
-  await Expense.create({
+  Expense.create({
     expense: req.body.expense,
     description: req.body.description,
     category: req.body.category,
     userId: req.user.id,
-  });
-
-  res.json({
-    status: "success",
-    data: "Expense",
-  });
+  })
+    .then((expense) => {
+      // console.log("object");
+      let totalExpense =
+        Number(req.user.totalExpense) + Number(expense.expense);
+      // console.log(totalExpense);
+      User.update(
+        {
+          totalExpense: totalExpense,
+        },
+        {
+          where: { id: req.user.id },
+        }
+      );
+      res.json({
+        status: "success",
+        data: expense,
+      });
+    })
+    .catch((err) => {
+      res.json({
+        status: "success",
+        data: err.message,
+      });
+    });
 };
 
 exports.getExpenses = async (req, res) => {
@@ -42,16 +61,16 @@ exports.getExpenses = async (req, res) => {
   //     where: { id: req.user.id },
   //   }
   // );
-  await User.update(
-    {
-      totalExpense: Sequelize.literal(
-        `(SELECT SUM(expense) FROM expenses WHERE userId = ${req.user.id})`
-      ),
-    },
-    {
-      where: { id: req.user.id },
-    }
-  );
+  // await User.update(
+  //   {
+  //     totalExpense: Sequelize.literal(
+  //       `(SELECT SUM(expense) FROM expenses WHERE userId = ${req.user.id})`
+  //     ),
+  //   },
+  //   {
+  //     where: { id: req.user.id },
+  //   }
+  // );
   return res.status(200).json({
     status: "success",
     data: expenses,
@@ -60,7 +79,21 @@ exports.getExpenses = async (req, res) => {
 
 exports.deleteExpenses = async (req, res) => {
   try {
-    const expense = await Expense.findOne({ where: { id: req.params.id } });
+    const expense = await Expense.findOne({
+      where: { id: req.params.id },
+    });
+    // console.log("object");
+    // console.log(expense.expense);
+    let totalExpense = Number(req.user.totalExpense) - Number(expense.expense);
+    // console.log(totalExpense);
+    User.update(
+      {
+        totalExpense: totalExpense,
+      },
+      {
+        where: { id: req.user.id },
+      }
+    );
     await expense.destroy();
     return res.status(202).json({
       status: "success",
