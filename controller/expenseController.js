@@ -22,6 +22,7 @@ exports.PostExpense = async (req, res) => {
     category: req.body.category,
     userId: req.user.id,
   });
+
   res.json({
     status: "success",
     data: "Expense",
@@ -30,10 +31,30 @@ exports.PostExpense = async (req, res) => {
 
 exports.getExpenses = async (req, res) => {
   const expenses = await Expense.findAll({ where: { Userid: req.user.id } });
+  // await User.update(
+  //   {
+  //     totalExpense: [
+  //       Sequelize.fn("sum", Sequelize.col("expenses.expense")),
+  //       "totalExpense",
+  //     ],
+  //   },
+  //   {
+  //     where: { id: req.user.id },
+  //   }
+  // );
+  await User.update(
+    {
+      totalExpense: Sequelize.literal(
+        `(SELECT SUM(expense) FROM expenses WHERE userId = ${req.user.id})`
+      ),
+    },
+    {
+      where: { id: req.user.id },
+    }
+  );
   return res.status(200).json({
     status: "success",
     data: expenses,
-    ispremium: req.user.ispremiumuser,
   });
 };
 
@@ -55,21 +76,21 @@ exports.deleteExpenses = async (req, res) => {
 
 exports.allExpenses = async (req, res) => {
   try {
-    const expenses = await User.findAll({
-      attributes: [
-        "id",
-        "name",
-        [Sequelize.fn("sum", Sequelize.col("expenses.expense")), "total_Cost"],
-      ],
-      include: [
-        {
-          model: Expense,
-          attributes: [],
-        },
-      ],
-      group: ["user.id"],
-      order: [["total_Cost", "DESC"]],
-    });
+    // const expenses = await User.findAll({
+    //   attributes: [
+    //     "id",
+    //     "name",
+    //     [Sequelize.fn("sum", Sequelize.col("expenses.expense")), "total_Cost"],
+    //   ],
+    //   include: [
+    //     {
+    //       model: Expense,
+    //       attributes: [],
+    //     },
+    //   ],
+    //   group: ["user.id"],
+    //   order: [["total_Cost", "DESC"]],
+    // });
     // const expenses = await Expense.findAll({
     //   attributes: [
     //     "userId",
@@ -80,6 +101,10 @@ exports.allExpenses = async (req, res) => {
     //   order: [["total_Cost", "DESC"]],
     // });
     // console.log("result", expenses);
+    const expenses = await User.findAll({
+      attributes: ["id", "name", "totalExpense"],
+      order: [["totalExpense", "DESC"]],
+    });
     return res.status(200).json({
       status: "success",
       data: expenses,

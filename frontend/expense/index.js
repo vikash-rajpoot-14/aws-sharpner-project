@@ -188,6 +188,7 @@ async function leaderboardData() {
       },
     }
   );
+  console.log(response);
   // console.log(response.data.data);
   let arr = response.data.data;
   // for (let i = 0; i < arr.length; i++) {
@@ -201,7 +202,7 @@ async function leaderboardData() {
     arr.map((expense) => {
       listData += '<li class="list-item">';
       listData += `Name :-${expense.name}   Totalexpenses :-${
-        expense.total_Cost * 1
+        expense.totalExpense * 1
       }  `;
       listData += "</li>";
       listboard.innerHTML = listData;
