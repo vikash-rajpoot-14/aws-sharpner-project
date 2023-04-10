@@ -44,7 +44,10 @@ async function showHandler(e) {
     }
   );
   if (expense.status === 204) {
-    return (error.innerHTML = "Enter all fields");
+    error.innerHTML = "Enter all fields";
+    setTimeout(() => {
+      error.innerHTML = "";
+    }, 1000);
   }
   (e.target.expense.value = ""),
     (e.target.description.value = ""),
