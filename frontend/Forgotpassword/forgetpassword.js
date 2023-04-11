@@ -8,6 +8,7 @@ async function showForgot(e) {
       "http://localhost:3000/user/forgotpassword",
       obj
     );
+    console.log(user);
     e.target.email.value = "";
     if (user.status == 200) {
       document.getElementById("error").innerHTML =
@@ -32,6 +33,7 @@ async function showPassword(e) {
     const id = e.target.baseURI.split("?")[1];
     password = e.target.password.value;
     cpassword = e.target.cpassword.value;
+    console.log(id);
     if (cpassword === password) {
       const obj = {
         password: password,
