@@ -1,4 +1,7 @@
 const SibApiV3Sdk = require("sib-api-v3-sdk");
+const Frequest = require("./../models/forgetpasswordrequest");
+const User = require("./../models/user");
+const bcrypt = require("bcrypt");
 
 let defaultClient = SibApiV3Sdk.ApiClient.instance;
 
@@ -14,7 +17,13 @@ const sender = {
 
 exports.ForgetPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    var { email } = req.body;
+    const user = await User.findOne({ where: { email: email } });
+    const frequeset = await user.createFrequest({
+      isActive: true,
+    });
+    // console.log("object");
+    const uuid = frequeset.id;
     const recievers = [
       {
         email: email,
@@ -25,9 +34,10 @@ exports.ForgetPassword = async (req, res) => {
       sender,
       to: recievers,
       subject: "email for forget password",
-      textContent: `your new  opt is {{params.otp}}`,
+      htmlContent: `<p>this link is valid for single use only !<p><a href={{params.link}}{{params.uuid}} >{{params.link}}{{params.uuid}} !</a>`,
       params: {
-        otp: Math.floor(Math.random() * 100000 + 1),
+        link: "http://localhost:3000/user/forgotpassword/",
+        uuid: uuid,
       },
     });
     console.log(
@@ -38,9 +48,67 @@ exports.ForgetPassword = async (req, res) => {
       data: "message has been sent",
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       status: "fail",
       data: error,
+    });
+  }
+};
+
+exports.ResetPassword = async (req, res) => {
+  try {
+    const uuid = req.params.id;
+    const request = await Frequest.findOne({ where: { id: uuid } });
+    if (request.isActive) {
+      await Frequest.update(
+        {
+          isActive: false,
+        },
+        {
+          where: { id: uuid },
+        }
+      );
+      res.redirect(
+        "http://127.0.0.1:5500/frontend/Forgotpassword/passwordform.html?" +
+          request.userId
+      );
+    } else {
+      throw new Error("cannot use same link twice");
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      data: error.message,
+    });
+  }
+};
+
+exports.setforgotpassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const id = req.params.id;
+    const saltRounds = 10;
+    const hashed = await bcrypt.hash(password, saltRounds);
+    const user = await User.update(
+      {
+        password: hashed,
+      },
+      {
+        where: { id: id },
+      }
+    );
+    if (user) {
+      return res.redirect("http://127.0.0.1:5500/frontend/Login/login.html");
+    }
+    return res.status(404).json({
+      status: "user not found",
+      data: err.message,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "fail",
+      data: err.message,
     });
   }
 };

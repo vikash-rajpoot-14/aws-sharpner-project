@@ -17,12 +17,16 @@ const PaymentRoutes = require("./routes/razorpay");
 const User = require("./models/user");
 const Expense = require("./models/expense");
 const Order = require("./models/order");
+const Fprequest = require("./models/forgetpasswordrequest");
 //association
 Expense.belongsTo(User);
 User.hasMany(Expense);
 
 User.hasMany(Order);
 Order.belongsTo(User);
+
+User.hasMany(Fprequest);
+Fprequest.belongsTo(User);
 //middleware
 const app = express();
 app.use(bodyParser.json());
