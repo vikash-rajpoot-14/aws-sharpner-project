@@ -90,9 +90,12 @@ li {
   margin: 2px;
   padding: 2px;
   font-size: 15px;
+  font-weight: 5px;
 }
 ul {
   list-style-type: decimal;
+  /* position: absolute;
+  left: 28%; */
 }
 .btn-delete {
   background-color: rgb(225 3 3);
@@ -105,6 +108,44 @@ ul {
 #leader-btn {
   position: relative;
   top: 1%;
+  left: 37%;
+  background-color: rgb(41 53 161);
+  padding: 2px 15px;
+  color: white;
+  font-size: 14px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 80%;
+  font-size: 15px;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 4px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+table,
+th,
+td {
+  border: 1px solid black;
+}
+h2,
+h3 {
+  margin: 6px 0px;
+}
+
+#download {
+  position: relative;
+  top: 6%;
   left: 37%;
   background-color: rgb(41 53 161);
   padding: 2px 15px;
