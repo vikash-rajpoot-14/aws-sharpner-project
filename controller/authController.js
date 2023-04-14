@@ -14,6 +14,7 @@ exports.authenticate = async (req, res, next) => {
     const decode = await jwt.verify(JSON.parse(token), process.env.JWT_SECRET);
     // console.log("decode", decode);
     const user = await User.findByPk(decode.id);
+    // console.log(user);
     req.user = user;
     next();
   } catch (err) {

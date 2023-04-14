@@ -4,13 +4,49 @@ const leaderboard = document.getElementById("leaderboard");
 const listboard = document.getElementById("listboard");
 const leaderbtn = document.getElementById("leader-btn");
 const download = document.getElementById("download");
+const fileItems = document.getElementById("file-items");
 leaderboard.style.display = "none";
 listboard.style.display = "none";
 leaderbtn.style.display = "none";
 download.style.display = "none";
 let token = localStorage.getItem("token");
 let decode = parseJwt(token);
+const li = document.createElement("li");
+li.innerHTML = "vikash";
+fileItems.appendChild(li);
+
 showdata();
+// console.log(month());
+download.addEventListener("click", async function downloadFile(e) {
+  try {
+    let token = localStorage.getItem("token");
+    const response = await axios({
+      method: "get",
+      url: "http://localhost:3000/user/download",
+      responseType: "blob",
+      headers: {
+        authorization: "Bearer " + `${token}`,
+      },
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+function month(d) {
+  const now = new Date(d);
+  const monthName = now.toLocaleString("default", { month: "long" }); // Get the month name using toLocaleString()
+  return monthName;
+}
 
 function parseJwt(token) {
   var base64Url = token.split(".")[1];
@@ -166,6 +202,7 @@ document.getElementById("rzp-button1").onclick = async function (e) {
   });
   e.preventDefault();
 };
+
 leaderbtn.onclick = function leader() {
   leaderboard.style.display = "block";
   listboard.style.display = "block";
@@ -220,16 +257,19 @@ async function leaderboardTableData() {
       authorization: "Bearer " + `${token}`,
     },
   });
-  // console.log(response.data.data);
   let expenses = response.data.data;
+  let monthArr = [...expenses];
+  // console.log(monthArr);
+  let dataarr = [];
+  for (let i = 0; i < 12; i++) {
+    dataarr[i] = monthArr.filter(
+      (item) => item.createdAt.slice(1, 10).split("-")[1] * 1 === i + 1
+    );
+  }
+  // console.log(dataarr);
   let arr = [...expenses];
-  // for (let i = 0; i < arr.length; i++) {
-  //   arr[i].expenses = arr[i].expenses.reduce((a, b) => a + b.expense * 1, 0);
-  // }
-  // arr.sort((a, b) => b.expenses - a.expenses);
-  const d = Date.now();
-  const now = new Date(d);
-  const monthName = now.toLocaleString("default", { month: "long" }); // Get the month name using toLocaleString()
+
+  const now = new Date(arr[0].createdAt);
   const year = now.getFullYear();
   const monthnumber = now.getMonth();
   let cmonth = String(monthnumber + 1);
@@ -242,7 +282,7 @@ async function leaderboardTableData() {
   let totalExpense = 0;
   let totalSaving = 0;
   let listData = "";
-  listData += `<h2>${monthName} ${year}</h2>`;
+  listData += `<h2>${month(arr[0].createdAt)} ${year}</h2>`;
   listData += "<table>";
   listData +=
     "<tr><th>Date</th><th>Description</th><th>Category</th><th>Income</th><th>Expenses</th></tr>";
@@ -275,12 +315,38 @@ async function leaderboardTableData() {
     listData += `<table style = "width: 80%;"><tr><th style= "color : blue; text-align: right; ">Total Saving :- $ ${totalSaving}.00</th></tr></table>`;
     listData += "</table>";
     // mothly table
+    let finalyearlyincome = 0;
+    let finalyearlyExpense = 0;
     listData += "<h3>Yearly Report</h3>";
     listData += "<table>";
     listData +=
       "<tr><th>Month</th><th>Income</th><th>Expense</th><th>Saving</th></tr>";
-    listData += `<tr><th>${monthName}</th><th> ${totalIncome}.00</th><th>${totalExpense}.00</th><th> ${totalSaving}.00</th></tr>`;
-    listData += `<tr><th></th><th style= "color : green">$ ${totalIncome}.00</th><th style= "color : red">$ ${totalExpense}.00</th><th style= "color : blue">$ ${totalSaving}.00</th></tr>`;
+    dataarr.map((item) => {
+      let totalMonthlySaving = 0;
+      if (item.length > 0) {
+        let totalMothlyExpense = 0;
+        let totalMothlyIncome = 0;
+        item.forEach((cv) => {
+          if (cv.category === "salary") {
+            totalMothlyIncome += cv.expense * 1;
+          } else {
+            totalMothlyExpense += cv.expense * 1;
+          }
+        });
+        finalyearlyincome += totalMothlyIncome;
+        finalyearlyExpense += totalMothlyExpense;
+        totalMonthlySaving = totalMothlyIncome - totalMothlyExpense;
+        listData += `<tr><th>${month(
+          item[0].createdAt
+        )}</th><th> ${totalMothlyIncome}.00</th><th>${totalMothlyExpense}.00</th><th> ${totalMonthlySaving}.00</th></tr>`;
+      } else {
+        listData += "";
+      }
+    });
+
+    listData += `<tr><th></th><th style= "color : green">$ ${finalyearlyincome}.00</th><th style= "color : red">$ ${finalyearlyExpense}.00</th><th style= "color : blue">$ ${
+      finalyearlyincome - finalyearlyExpense
+    }.00</th></tr>`;
     listData += "</table>";
     // notes table
     listData += `<h3>Notes Report ${year}</h3>`;

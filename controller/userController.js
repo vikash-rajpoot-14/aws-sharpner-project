@@ -2,6 +2,9 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sequelize = require("../util/database");
+const { createObjectCsvWriter } = require("csv-writer");
+const fs = require("fs");
+const Expense = require("../models/expense");
 
 const signToken = (id, name, ispremiumuser) => {
   return jwt.sign({ id, name, ispremiumuser }, process.env.JWT_SECRET, {
@@ -80,5 +83,27 @@ exports.Login = async (req, res) => {
     return res
       .status(500)
       .json({ status: "fail", msg: "error " + err.message });
+  }
+};
+
+exports.FileDownload = async (req, res) => {
+  try {
+    // console.log(req.user);
+    const data = await Expense.findAll({ where: { userId: req.user.id } });
+    const csvWriter = createObjectCsvWriter({
+      path: `${__dirname}/../data.csv`,
+      header: [
+        { id: "id", title: "ID" },
+        { id: "expense", title: "Expense" },
+        { id: "description", title: "Description" },
+        { id: "category", title: "Category" },
+      ],
+    });
+    await csvWriter.writeRecords(data);
+    const file = `${__dirname}/../data.csv`;
+    res.download(file);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
   }
 };
