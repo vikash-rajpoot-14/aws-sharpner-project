@@ -5,13 +5,14 @@ const listboard = document.getElementById("listboard");
 const leaderbtn = document.getElementById("leader-btn");
 const download = document.getElementById("download");
 const fileItems = document.getElementById("file-items");
+const pagination = document.getElementById("pagination");
 leaderboard.style.display = "none";
 listboard.style.display = "none";
 leaderbtn.style.display = "none";
 download.style.display = "none";
 let token = localStorage.getItem("token");
 let decode = parseJwt(token);
-
+// let page = 1;
 showdata();
 // console.log(month());
 download.addEventListener("click", async function downloadFile(e) {
@@ -104,32 +105,22 @@ async function showHandler(e) {
 async function showdata() {
   let token = localStorage.getItem("token");
   const decode = parseJwt(token);
-
-  const expenses = await axios.get("http://localhost:3000/expenses", {
-    headers: {
-      "Content-type": "application/json",
-      authorization: "Bearer " + `${token}`,
-    },
-  });
-
   if (decode.ispremiumuser) {
     buttonChange();
   }
-  let listData = "";
-  if (expenses.data.data.length < 1) {
-    ul.innerHTML = listData;
-  } else {
-    expenses.data.data.map((expense) => {
-      listData += '<li class="list">';
-      listData += ` ${expense.expense} ${expense.description} ${expense.category}   `;
-      listData +=
-        "<button class='btn-delete' onclick='deleteData(`" +
-        expense.id +
-        "`)'>delete</button> ";
-      listData += "</li>";
-    });
-    ul.innerHTML = listData;
-  }
+  const page = 1;
+  const expenses = await axios.get(
+    `http://localhost:3000/expenses/paginate?page=${page}`,
+    {
+      headers: {
+        "Content-type": "application/json",
+        authorization: "Bearer " + `${token}`,
+      },
+    }
+  );
+  const { data, ...pageData } = expenses.data;
+  listExpenses(data);
+  showPagination(pageData);
 }
 
 async function deleteData(id) {
@@ -374,7 +365,7 @@ async function leaderboardTableData() {
       authorization: "Bearer " + `${token}`,
     },
   });
-  console.log(downloadtable);
+  // console.log(downloadtable);
   let list = "";
   list += `<h3>Download Files</h3>`;
   list += "<table>";
@@ -391,4 +382,66 @@ async function leaderboardTableData() {
   }
   fileItems.innerHTML = list;
   // showdata();
+}
+
+function getExpenses(page) {
+  const token = localStorage.getItem("token");
+  axios
+    .get(`http://localhost:3000/expenses/paginate?page=${page}`, {
+      headers: {
+        "Content-type": "application/json",
+        authorization: "Bearer " + `${token}`,
+      },
+    })
+    .then((res) => {
+      const { data, ...pageData } = res.data;
+      listExpenses(data);
+      showPagination(pageData);
+    });
+}
+
+function listExpenses(data) {
+  let listData = "";
+  if (data.length < 1) {
+    ul.innerHTML = listData;
+  } else {
+    data.map((expense) => {
+      listData += '<li class="list">';
+      listData += ` ${expense.expense} ${expense.description} ${expense.category}   `;
+      listData +=
+        "<button class='btn-delete' onclick='deleteData(`" +
+        expense.id +
+        "`)'>delete</button> ";
+      listData += "</li>";
+    });
+    ul.innerHTML = listData;
+  }
+}
+
+function showPagination({
+  CURRENT_PAGE,
+  HAS_NEXT_PAGE,
+  HAS_PREVIOUS_PAGE,
+  LAST_PAGE,
+  NEXT_PAGE,
+  PREVIOU_PAGE,
+}) {
+  pagination.innerHTML = "";
+  if (HAS_PREVIOUS_PAGE) {
+    const btn2 = document.createElement("button");
+    btn2.innerHTML = PREVIOU_PAGE;
+    btn2.addEventListener("click", () => getExpenses(PREVIOU_PAGE));
+    pagination.appendChild(btn2);
+  }
+  const btn3 = document.createElement("button");
+  btn3.innerHTML = CURRENT_PAGE;
+  btn3.addEventListener("click", () => getExpenses(CURRENT_PAGE));
+  pagination.appendChild(btn3);
+
+  if (HAS_NEXT_PAGE) {
+    const btn1 = document.createElement("button");
+    btn1.innerHTML = NEXT_PAGE;
+    btn1.addEventListener("click", () => getExpenses(NEXT_PAGE));
+    pagination.appendChild(btn1);
+  }
 }

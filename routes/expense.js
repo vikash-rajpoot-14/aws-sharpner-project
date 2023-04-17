@@ -8,6 +8,9 @@ router
   .post(authController.authenticate, controller.PostExpense);
 router.route("/").get(authController.authenticate, controller.getExpenses);
 router
+  .route("/paginate")
+  .get(authController.authenticate, controller.getPageExpenses);
+router
   .route("/delete-expenses/:id")
   .delete(authController.authenticate, controller.deleteExpenses);
 router

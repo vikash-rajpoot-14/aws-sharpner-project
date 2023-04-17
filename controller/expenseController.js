@@ -256,3 +256,36 @@ exports.DownloadTable = async (req, res) => {
     });
   }
 };
+
+exports.getPageExpenses = (req, res) => {
+  const page = req.query.page * 1 || 1;
+  const ITEM_PER_PAGE = 2;
+  let totalCounts;
+  // const totalItem = await req.user.countExpenses();
+  Expense.count({ where: { UserId: req.user.id } })
+    .then((total) => {
+      totalCounts = total;
+      return Expense.findAll({
+        where: { UserId: req.user.id },
+        offset: (page - 1) * ITEM_PER_PAGE,
+        limit: ITEM_PER_PAGE,
+      });
+    })
+    .then((expense) => {
+      return res.status(200).json({
+        CURRENT_PAGE: page,
+        HAS_NEXT_PAGE: ITEM_PER_PAGE * page < totalCounts,
+        NEXT_PAGE: page + 1,
+        HAS_PREVIOUS_PAGE: page > 1,
+        PREVIOU_PAGE: page - 1,
+        LAST_PAGE: Math.ceil(totalCounts / ITEM_PER_PAGE),
+        data: expense,
+      });
+    })
+    .catch((err) => {
+      return res.status(200).json({
+        status: "fail",
+        error: err,
+      });
+    });
+};
