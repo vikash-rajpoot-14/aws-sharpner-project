@@ -258,8 +258,10 @@ exports.DownloadTable = async (req, res) => {
 };
 
 exports.getPageExpenses = (req, res) => {
+  console.log(req.query);
   const page = req.query.page * 1 || 1;
-  const ITEM_PER_PAGE = 2;
+  const limit = req.query.limit * 1 || 1;
+  const ITEM_PER_PAGE = limit;
   let totalCounts;
   // const totalItem = await req.user.countExpenses();
   Expense.count({ where: { UserId: req.user.id } })

@@ -6,6 +6,7 @@ const leaderbtn = document.getElementById("leader-btn");
 const download = document.getElementById("download");
 const fileItems = document.getElementById("file-items");
 const pagination = document.getElementById("pagination");
+const rowperPage = document.getElementById("pages");
 leaderboard.style.display = "none";
 listboard.style.display = "none";
 leaderbtn.style.display = "none";
@@ -13,6 +14,8 @@ download.style.display = "none";
 let token = localStorage.getItem("token");
 let decode = parseJwt(token);
 // let page = 1;
+rowperPage.value = localStorage.getItem("rowperPage");
+
 showdata();
 // console.log(month());
 download.addEventListener("click", async function downloadFile(e) {
@@ -50,6 +53,11 @@ download.addEventListener("click", async function downloadFile(e) {
     console.error(error);
   }
 });
+
+rowperPage.onchange = () => {
+  localStorage.setItem("rowperPage", rowperPage.value);
+  showdata();
+};
 
 function month(d) {
   const now = new Date(d);
@@ -103,14 +111,16 @@ async function showHandler(e) {
 }
 
 async function showdata() {
+  // localStorage.setItem("rowperpage", rowperPage.value);
   let token = localStorage.getItem("token");
   const decode = parseJwt(token);
   if (decode.ispremiumuser) {
     buttonChange();
   }
   const page = 1;
+  const limit = localStorage.getItem("rowperPage");
   const expenses = await axios.get(
-    `http://localhost:3000/expenses/paginate?page=${page}`,
+    `http://localhost:3000/expenses/paginate?page=${page}&limit=${limit}`,
     {
       headers: {
         "Content-type": "application/json",
@@ -386,13 +396,17 @@ async function leaderboardTableData() {
 
 function getExpenses(page) {
   const token = localStorage.getItem("token");
+  const limit = localStorage.getItem("rowperPage");
   axios
-    .get(`http://localhost:3000/expenses/paginate?page=${page}`, {
-      headers: {
-        "Content-type": "application/json",
-        authorization: "Bearer " + `${token}`,
-      },
-    })
+    .get(
+      `http://localhost:3000/expenses/paginate?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          "Content-type": "application/json",
+          authorization: "Bearer " + `${token}`,
+        },
+      }
+    )
     .then((res) => {
       const { data, ...pageData } = res.data;
       listExpenses(data);
