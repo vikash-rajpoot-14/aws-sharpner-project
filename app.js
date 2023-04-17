@@ -18,6 +18,7 @@ const User = require("./models/user");
 const Expense = require("./models/expense");
 const Order = require("./models/order");
 const Fprequest = require("./models/forgetpasswordrequest");
+const Downloadfile = require("./models/downloadfile");
 //association
 Expense.belongsTo(User);
 User.hasMany(Expense);
@@ -27,6 +28,9 @@ Order.belongsTo(User);
 
 User.hasMany(Fprequest);
 Fprequest.belongsTo(User);
+
+User.hasMany(Downloadfile);
+Downloadfile.belongsTo(User);
 //middleware
 const app = express();
 app.use(bodyParser.json());

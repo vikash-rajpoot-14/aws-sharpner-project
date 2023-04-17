@@ -10,8 +10,5 @@ router.route("/login").post(controller.Login);
 router.route("/forgotpassword").post(emailcontroller.ForgetPassword);
 router.route("/forgotpassword/:id").get(emailcontroller.ResetPassword);
 router.route("/setforgotpassword/:id").post(emailcontroller.setforgotpassword);
-router
-  .route("/download")
-  .get(authController.authenticate, controller.FileDownload);
 
 module.exports = router;

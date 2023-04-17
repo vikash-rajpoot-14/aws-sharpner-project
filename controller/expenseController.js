@@ -1,6 +1,81 @@
 const Expense = require("./../models/expense");
 const User = require("./../models/user");
 const sequelize = require("./../util/database");
+const AWS = require("aws-sdk");
+const Downloadfile = require("./../models/downloadfile");
+
+function UploadToS3(data, file) {
+  try {
+    const BUCKET_NAME = process.env.BUCKET_NAME;
+    const AWS_KEY_ID = process.env.AWS_KEY_ID;
+    const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+
+    let s3bucket = new AWS.S3({
+      accessKeyId: AWS_KEY_ID,
+      secretAccessKey: AWS_SECRET_KEY,
+    });
+
+    var params = {
+      Bucket: BUCKET_NAME,
+      Key: file,
+      Body: data,
+      ACL: "public-read",
+    };
+    // console.log("params", params);
+    return new Promise((resolve, reject) => {
+      s3bucket.upload(params, (err, data) => {
+        if (err) {
+          console.log("Something went wrong", err);
+          reject(err);
+        } else {
+          // console.log("success", data);
+          resolve(data.Location);
+        }
+      });
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: err,
+      fileUrl: "",
+    });
+  }
+}
+
+exports.FileDownload = async (req, res) => {
+  try {
+    const expense = await req.user.getExpenses();
+    // console.log(expense);
+    const StringifyExpense = JSON.stringify(expense);
+    const userId = req.user.id;
+    const filename = `Expense-${userId}-${new Date()}.txt`;
+    const fileUrl = await UploadToS3(StringifyExpense, filename);
+    await req.user.createDownloadfile({
+      fileUrl: fileUrl,
+    });
+    console.log("object", fileUrl);
+    res.status(201).json({
+      success: true,
+      fileUrl: fileUrl,
+    });
+    // console.log(req.user);
+    //   const data = await Expense.findAll({ where: { userId: req.user.id } });
+    //   const csvWriter = createObjectCsvWriter({
+    //     path: `${__dirname}/../data.csv`,
+    //     header: [
+    //       { id: "id", title: "ID" },
+    //       { id: "expense", title: "Expense" },
+    //       { id: "description", title: "Description" },
+    //       { id: "category", title: "Category" },
+    //     ],
+    //   });
+    //   await csvWriter.writeRecords(data);
+    //   const file = `${__dirname}/../data.csv`;
+    //   res.download(file);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+};
 
 exports.PostExpense = async (req, res) => {
   const t = await sequelize.transaction();
@@ -163,6 +238,21 @@ exports.allExpenses = async (req, res) => {
     return res.status(500).json({
       status: "fail",
       data: error.message,
+    });
+  }
+};
+
+exports.DownloadTable = async (req, res) => {
+  try {
+    const response = await req.user.getDownloadfiles();
+    return res.status(200).json({
+      success: true,
+      data: response,
+    });
+  } catch (error) {
+    return res.status(200).json({
+      success: false,
+      error: error,
     });
   }
 };

@@ -11,9 +11,6 @@ leaderbtn.style.display = "none";
 download.style.display = "none";
 let token = localStorage.getItem("token");
 let decode = parseJwt(token);
-const li = document.createElement("li");
-li.innerHTML = "vikash";
-fileItems.appendChild(li);
 
 showdata();
 // console.log(month());
@@ -22,21 +19,32 @@ download.addEventListener("click", async function downloadFile(e) {
     let token = localStorage.getItem("token");
     const response = await axios({
       method: "get",
-      url: "http://localhost:3000/user/download",
-      responseType: "blob",
+      url: "http://localhost:3000/expenses/download",
       headers: {
         authorization: "Bearer " + `${token}`,
       },
     });
+    // console.log(response);
+    if (response.status === 201) {
+      //the bcakend is essentially sending a download link
+      //  which if we open in browser, the file would download
+      var a = document.createElement("a");
+      a.href = response.data.fileUrl;
+      a.download = "myexpense.csv";
+      a.click();
+    } else {
+      throw new Error(response.data.message);
+    }
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "data.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    // const url = window.URL.createObjectURL(new Blob([response.data]));
+    // const link = document.createElement("a");
+    // link.href = url;
+    // link.setAttribute("download", "data.csv");
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+    // window.URL.revokeObjectURL(url);
+    showdata();
   } catch (error) {
     console.error(error);
   }
@@ -215,6 +223,7 @@ async function buttonChange() {
   premiumButton.innerHTML = "you are a premium user now";
   premiumButton.setAttribute("disabled", "");
   leaderbtn.style.display = "block";
+  download.style.display = "block";
   leaderboardTableData();
 }
 
@@ -312,7 +321,7 @@ async function leaderboardTableData() {
     totalSaving = totalIncome - totalExpense;
     listData += `<tr><th></th><th></th><th></th><th>${totalIncome}.00</th><th>${totalExpense}.00</th></tr>`;
     listData += `<tr><th></th><th></th><th></th><th style= "color : green ; width:80px">$ ${totalIncome}.00</th><th style= "color : red ; width:60px">$ ${totalExpense}</th></tr>`;
-    listData += `<table style = "width: 80%;"><tr><th style= "color : blue; text-align: right; ">Total Saving :- $ ${totalSaving}.00</th></tr></table>`;
+    listData += `<table style = "width: 50%;"><tr><th style= "color : blue; text-align: right; ">Total Saving :- $ ${totalSaving}.00</th></tr></table>`;
     listData += "</table>";
     // mothly table
     let finalyearlyincome = 0;
@@ -357,4 +366,29 @@ async function leaderboardTableData() {
     listData += "</table>";
     listboard.innerHTML = listData;
   }
+
+  const downloadtable = await axios({
+    method: "get",
+    url: "http://localhost:3000/expenses/downloadtable",
+    headers: {
+      authorization: "Bearer " + `${token}`,
+    },
+  });
+  console.log(downloadtable);
+  let list = "";
+  list += `<h3>Download Files</h3>`;
+  list += "<table>";
+  list += "<tr><th>Date</th><th>FileUrl</th></tr>";
+  if (downloadtable.data.data.length < 1) {
+    list += "</table>";
+  } else {
+    downloadtable.data.data.map((item) => {
+      list += `<tr><th>${item.createdAt.slice(0, 10)}</th><th>${
+        item.fileUrl
+      }</th>`;
+    });
+    list += "</table>";
+  }
+  fileItems.innerHTML = list;
+  // showdata();
 }

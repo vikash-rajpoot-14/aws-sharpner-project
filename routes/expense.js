@@ -14,4 +14,12 @@ router
   .route("/allExpenses")
   .get(authController.authenticate, controller.allExpenses);
 
+router
+  .route("/download")
+  .get(authController.authenticate, controller.FileDownload);
+
+router
+  .route("/downloadtable")
+  .get(authController.authenticate, controller.DownloadTable);
+
 module.exports = router;

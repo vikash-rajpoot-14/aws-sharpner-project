@@ -85,25 +85,3 @@ exports.Login = async (req, res) => {
       .json({ status: "fail", msg: "error " + err.message });
   }
 };
-
-exports.FileDownload = async (req, res) => {
-  try {
-    // console.log(req.user);
-    const data = await Expense.findAll({ where: { userId: req.user.id } });
-    const csvWriter = createObjectCsvWriter({
-      path: `${__dirname}/../data.csv`,
-      header: [
-        { id: "id", title: "ID" },
-        { id: "expense", title: "Expense" },
-        { id: "description", title: "Description" },
-        { id: "category", title: "Category" },
-      ],
-    });
-    await csvWriter.writeRecords(data);
-    const file = `${__dirname}/../data.csv`;
-    res.download(file);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
-};

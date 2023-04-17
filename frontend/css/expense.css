@@ -1,6 +1,9 @@
 body {
   margin: 0px;
+  align-items: center;
+  justify-content: center;
 }
+/* 
 .main {
   display: flex;
   flex-direction: row;
@@ -31,19 +34,19 @@ body {
   box-shadow: 3px 3px;
   height: 61vh;
 }
-
+ */
 #rzp-button1 {
-  background-color: rgb(27, 30, 228);
-  position: absolute;
+  background-color: rgb(67, 67, 68);
+  /* position: absolute;
   top: 63%;
-  left: 17%;
+  left: 17%; */
+  margin-top: 2px;
   cursor: pointer;
-  /* background: transparent; */
   box-shadow: black;
   color: white;
 }
 
-.flexchild {
+/* .flexchild {
   padding: 12px 10px;
   margin: 2px 13px;
 }
@@ -68,23 +71,23 @@ input[type="text"] {
   font-size: 17px;
   text-align: center;
   border: 2px solid #4e4646;
-}
+} */
 
-#submit {
+/* #submit {
   background-color: rgb(81, 81, 233);
   padding: 6px;
   font-size: 20px;
   border-radius: 8px;
   cursor: pointer;
-}
+} */
 
-.details {
+/* .details {
   background-repeat: no-repeat;
   background-size: cover;
   height: 100vh;
   width: 65vw;
   text-align: center;
-}
+} */
 
 li {
   margin: 2px;
@@ -105,7 +108,7 @@ ul {
   border-radius: 4px;
   cursor: pointer;
 }
-#leader-btn {
+/* #leader-btn {
   position: relative;
   top: 1%;
   left: 37%;
@@ -115,11 +118,11 @@ ul {
   font-size: 14px;
   border-radius: 2px;
   cursor: pointer;
-}
+} */
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
-  width: 80%;
+  width: 50%;
   font-size: 15px;
 }
 
@@ -143,7 +146,7 @@ h3 {
   margin: 6px 0px;
 }
 
-#download {
+/* #download {
   position: relative;
   top: 6%;
   left: 37%;
@@ -153,4 +156,4 @@ h3 {
   font-size: 14px;
   border-radius: 2px;
   cursor: pointer;
-}
+} */
