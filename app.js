@@ -55,15 +55,15 @@ app.use(cors());
 app.use("/user", UserRoutes);
 app.use("/expenses", ExpenseRoutes);
 app.use("/payment", PaymentRoutes);
-app.get("/", (req, res) => {
-  res.send("Welcome");
-});
-
+// app.get("/", (req, res) => {
+//   res.send("Welcome");
+// });
+const port = 3000;
 sequelize
   // .sync({ force: true })
   .sync()
   .then((result) => {
-    app.listen(process.env.PORT || 3000);
+    app.listen(port);
   })
   .catch((err) => {
     console.log(err);

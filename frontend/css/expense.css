@@ -1,5 +1,4 @@
 body {
-  margin: 0px;
   align-items: center;
   justify-content: center;
 }
@@ -122,15 +121,15 @@ ul {
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
-  width: 50%;
+  width: 100%;
   font-size: 15px;
 }
 
 td,
 th {
   border: 1px solid #dddddd;
-  text-align: left;
-  padding: 4px;
+  text-align: center;
+  padding: 10px;
 }
 
 tr:nth-child(even) {
@@ -161,4 +160,7 @@ h3 {
 #pagination {
   position: sticky;
   padding: 0px 40px;
+}
+.side4 {
+  display: flex;
 }

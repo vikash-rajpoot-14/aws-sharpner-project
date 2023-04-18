@@ -2,7 +2,7 @@ const Expense = require("./../models/expense");
 const User = require("./../models/user");
 const sequelize = require("./../util/database");
 const AWS = require("aws-sdk");
-const Downloadfile = require("./../models/downloadfile");
+// const Downloadfile = require("./../models/downloadfile");
 
 function UploadToS3(data, file) {
   try {
