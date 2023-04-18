@@ -1,0 +1,6 @@
+::1 - - [17/Apr/2023:22:02:55 +0000] "OPTIONS /expenses HTTP/1.1" 204 0 "http://127.0.0.1:5500/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+::1 - - [17/Apr/2023:22:02:55 +0000] "OPTIONS /expenses/paginate?page=1&limit=5 HTTP/1.1" 204 0 "http://127.0.0.1:5500/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+::1 - - [17/Apr/2023:22:02:55 +0000] "GET /expenses HTTP/1.1" 200 1608 "http://127.0.0.1:5500/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+::1 - - [17/Apr/2023:22:02:56 +0000] "GET /expenses/paginate?page=1&limit=5 HTTP/1.1" 200 918 "http://127.0.0.1:5500/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+::1 - - [17/Apr/2023:22:02:56 +0000] "OPTIONS /expenses/downloadtable HTTP/1.1" 204 0 "http://127.0.0.1:5500/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+::1 - - [17/Apr/2023:22:02:56 +0000] "GET /expenses/downloadtable HTTP/1.1" 200 1477 "http://127.0.0.1:5500/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"

@@ -258,7 +258,7 @@ exports.DownloadTable = async (req, res) => {
 };
 
 exports.getPageExpenses = (req, res) => {
-  console.log(req.query);
+  // console.log(req.query);
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 1;
   const ITEM_PER_PAGE = limit;

@@ -2,7 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
-
+const helmet = require("helmet");
+const morgan = require("morgan");
+const fs = require("fs");
+const path = require("path");
 //.env
 dotenv.config({ path: `${__dirname}/config.env` });
 
@@ -13,6 +16,8 @@ const sequelize = require("./util/database");
 const UserRoutes = require("./routes/user");
 const ExpenseRoutes = require("./routes/expense");
 const PaymentRoutes = require("./routes/razorpay");
+
+const app = express();
 //models
 const User = require("./models/user");
 const Expense = require("./models/expense");
@@ -32,7 +37,15 @@ Fprequest.belongsTo(User);
 User.hasMany(Downloadfile);
 Downloadfile.belongsTo(User);
 //middleware
-const app = express();
+
+app.use(helmet());
+var accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
+  flags: "a",
+});
+
+// setup the logger
+app.use(morgan("combined", { stream: accessLogStream }));
+
 app.use(bodyParser.json());
 
 // app.use(express.json());
@@ -50,7 +63,7 @@ sequelize
   // .sync({ force: true })
   .sync()
   .then((result) => {
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log(err);
