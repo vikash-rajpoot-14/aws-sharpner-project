@@ -38,13 +38,13 @@ User.hasMany(Downloadfile);
 Downloadfile.belongsTo(User);
 //middleware
 
-app.use(helmet());
-var accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
-  flags: "a",
-});
+// app.use(helmet());
+// var accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
+//   flags: "a",
+// });
 
 // setup the logger
-app.use(morgan("combined", { stream: accessLogStream }));
+// app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(bodyParser.json());
 
