@@ -47,8 +47,7 @@ async function showPassword(e) {
       document.getElementById("error").innerHTML =
         "Your password has been updated successfully !";
       setTimeout(() => {
-        window.location.href =
-          "http://127.0.0.1:5500/frontend/Login/login.html";
+        window.location.href = "http://127.0.0.1:3000/Login/login.html";
       }, 1000);
     } else {
       document.getElementById("error").innerHTML =

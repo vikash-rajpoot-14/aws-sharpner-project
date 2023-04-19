@@ -11,7 +11,7 @@ dotenv.config({ path: `${__dirname}/config.env` });
 
 //database
 const sequelize = require("./util/database");
-
+const PORT = process.env.PORT || 5000;
 //routes
 const UserRoutes = require("./routes/user");
 const ExpenseRoutes = require("./routes/expense");
@@ -55,15 +55,20 @@ app.use(cors());
 app.use("/user", UserRoutes);
 app.use("/expenses", ExpenseRoutes);
 app.use("/payment", PaymentRoutes);
-// app.get("/", (req, res) => {
-//   res.send("Welcome");
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, `frontend/${req.url}`));
+});
+// app.use((req, res) => {
+//   res.sendFile(path.join(__dirname, `frontend/Login/login.html`));
 // });
-const port = 3000;
+
 sequelize
   // .sync({ force: true })
   .sync()
   .then((result) => {
-    app.listen(port);
+    app.listen(PORT, () => {
+      console.log(`listening on http://localhost:${PORT}`);
+    });
   })
   .catch((err) => {
     console.log(err);

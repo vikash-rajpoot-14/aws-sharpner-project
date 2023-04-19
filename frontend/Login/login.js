@@ -11,8 +11,7 @@ async function showHandler(e) {
     if (user.status === 200) {
       error.innerHTML = "login successful";
       localStorage.setItem("token", JSON.stringify(user.data.token));
-      window.location.href =
-        "http://127.0.0.1:5500/frontend/expense/index.html";
+      window.location.href = "http://127.0.0.1:3000/expense/index.html";
     }
   } catch (e) {
     // console.log(e);
